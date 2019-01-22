@@ -36,7 +36,10 @@ import processing.core.*;
 import processing.opengl.PGraphics2D;
 import processing.opengl.PGraphicsOpenGL;
 
-Spout spout;
+Spout spoutReceiver;
+Spout spoutSender;
+PImage myImage; // image to receive the realsense depth textrue
+PImage painting;
 
   //
   //
@@ -81,12 +84,15 @@ Spout spout;
   // author: Thomas Diewald, (C) 2017
   //
   //
+  
 
   boolean START_FULLSCREEN = !true;
   
 
-  int viewport_w = 1280;
-  int viewport_h = 720;
+  //int viewport_w = 640;   //narture
+  //int viewport_h = 430;   //nature
+  int viewport_w = 758/2;
+  int viewport_h = 1080/2;
   int viewport_x = 230;
   int viewport_y = 0;
   
@@ -130,7 +136,7 @@ Spout spout;
   public int     BACKGROUND_MODE   = 0;
   public int     PARTICLE_COLOR    = 0;
   
-  float gravity = 2;
+  float gravity = 3.7;
 
   MouseObstacle[] mobs = new MouseObstacle[1];
 
@@ -151,8 +157,9 @@ Spout spout;
   
 
   public void setup(){
-     spout = new Spout(this);
-    
+    spoutSender = new Spout(this);
+    spoutReceiver = new Spout(this);
+    spoutReceiver.createReceiver("TDSyphonSpoutOut");
     surface.setLocation(viewport_x, viewport_y);
     surface.setResizable(true);
     randomSeed(2);
@@ -174,8 +181,8 @@ Spout spout;
     particles.param.shader_type = 0;
     particles.param.shader_collision_mult = 0.15f;
     
-    particles.param.size_display   = 12;
-    particles.param.size_collision = particles.param.size_display/2;
+    particles.param.size_display   = 9;                                //particlesize
+    particles.param.size_collision = 1;
     particles.param.size_cohesion  = 5;
     
     particles.param.wh_scale_coh = 4;
@@ -203,9 +210,12 @@ Spout spout;
     
     textSize(12);
     
-    frameRate(1000);
+    frameRate(30);
     
      cp5.hide();
+     
+     myImage = createImage(width, height, ARGB);
+     painting = loadImage("nature.jpg");
   }
   
 
@@ -514,7 +524,7 @@ Spout spout;
     
     info();
     
-    spout.sendTexture();
+    spoutSender.sendTexture();
   }
   
 
@@ -570,14 +580,14 @@ Spout spout;
   void updateScene(){
     
     
-    pg_spheres.beginDraw();
-    pg_spheres.clear();
-    pg_spheres.noStroke();
-    pg_spheres.blendMode(BLEND);
-    for(int i = 0; i < mobs.length; i++){
-      mobs[i].draw(pg_spheres, FG_MOBS);
-    }
-    pg_spheres.endDraw();
+    //pg_spheres.beginDraw();
+    //pg_spheres.clear();
+    //pg_spheres.noStroke();
+    //pg_spheres.blendMode(BLEND);
+    //for(int i = 0; i < mobs.length; i++){
+    //  mobs[i].draw(pg_spheres, FG_MOBS);
+    //}
+    //pg_spheres.endDraw();
     
    
     int w = pg_obstacles.width;
@@ -602,8 +612,136 @@ Spout spout;
         rot   += particles.getTimestep() * 0.008f;
         slide += particles.getTimestep() * 0.004f;
       }
+  
+     pg_obstacles.beginDraw();
+   
+      
+  
+     pg_obstacles.pushMatrix();
+     {
+       myImage = spoutReceiver.receivePixels(myImage);
+       pg_obstacles.image(myImage,0,0);
+       //pg_obstacles.endDraw();
+     }
+     pg_obstacles.popMatrix();     
+     
+     pg_obstacles.pushMatrix();         //nature
+     {
+        //float px = w/2 + sin(slide) * (4 * w/5f) * 0.5f;
+        //pg_obstacles.translate(px, h-250);
+        setFill(pg_obstacles, FG);
+        pg_obstacles.beginShape();
+        pg_obstacles.vertex(212,57);
+        pg_obstacles.vertex(204,78);
+        pg_obstacles.vertex(190,100);
+        pg_obstacles.vertex(181,110);
+        pg_obstacles.vertex(207,111);
+        pg_obstacles.vertex(168,161);
+        pg_obstacles.vertex(155,235);
+        pg_obstacles.vertex(192,244);
+        pg_obstacles.vertex(220,235);
+        pg_obstacles.vertex(241,120);
+        pg_obstacles.vertex(219,94);
+        pg_obstacles.vertex(223,69);
+        pg_obstacles.vertex(216,56);
+        pg_obstacles.endShape(CLOSE);
+     }
+     pg_obstacles.popMatrix();
+     
+      /*
+      pg_obstacles.pushMatrix();         //2001-3
+     {
+        //float px = w/2 + sin(slide) * (4 * w/5f) * 0.5f;
+        //pg_obstacles.translate(px, h-250);
+        setFill(pg_obstacles, FG);
+        pg_obstacles.beginShape();
+            
+       pg_obstacles.vertex(235,133);
+       pg_obstacles.vertex(213,157);
+       pg_obstacles.vertex(215,173);
+       pg_obstacles.vertex(228,186);
+       pg_obstacles.vertex(246,185);
+       pg_obstacles.vertex(266,176);
+       pg_obstacles.vertex(232,123);
 
- /*
+        pg_obstacles.endShape(CLOSE);
+     }
+     pg_obstacles.popMatrix();
+     
+     pg_obstacles.pushMatrix();         //2001-3
+     {
+        //float px = w/2 + sin(slide) * (4 * w/5f) * 0.5f;
+        //pg_obstacles.translate(px, h-250);
+        setFill(pg_obstacles, FG);
+        pg_obstacles.beginShape();
+            
+         pg_obstacles.vertex(193,131);
+         pg_obstacles.vertex(196,157);
+         pg_obstacles.vertex(202,193);
+         pg_obstacles.vertex(224,211);
+         pg_obstacles.vertex(223,250);
+         pg_obstacles.vertex(221,275);
+         pg_obstacles.vertex(198,277);
+         pg_obstacles.vertex(196,230);
+         pg_obstacles.vertex(185,157);
+
+        pg_obstacles.endShape(CLOSE);
+     }
+     pg_obstacles.popMatrix();
+     
+          pg_obstacles.pushMatrix();         //2001-3
+     {
+        //float px = w/2 + sin(slide) * (4 * w/5f) * 0.5f;
+        //pg_obstacles.translate(px, h-250);
+        setFill(pg_obstacles, FG);
+        pg_obstacles.beginShape();
+            
+       pg_obstacles.vertex(272,226);
+       pg_obstacles.vertex(249,251);
+       pg_obstacles.vertex(228,281);
+       pg_obstacles.vertex(221,297);
+       pg_obstacles.vertex(224,331);
+       pg_obstacles.vertex(250,337);
+       pg_obstacles.vertex(277,232);
+
+
+        pg_obstacles.endShape(CLOSE);
+     }
+     pg_obstacles.popMatrix();
+
+         pg_obstacles.pushMatrix();         //2001-3
+     {
+        //float px = w/2 + sin(slide) * (4 * w/5f) * 0.5f;
+        //pg_obstacles.translate(px, h-250);
+        setFill(pg_obstacles, FG);
+        pg_obstacles.beginShape();
+            
+       
+         pg_obstacles.vertex(158,311);
+         pg_obstacles.vertex(151,339);
+         pg_obstacles.vertex(144,362);
+         pg_obstacles.vertex(135,379);
+         pg_obstacles.vertex(122,381);
+         pg_obstacles.vertex(104,374);
+         pg_obstacles.vertex(84,358);
+         pg_obstacles.vertex(78,366);
+         pg_obstacles.vertex(131,410);
+         pg_obstacles.vertex(152,397);
+         pg_obstacles.vertex(158,371);
+         pg_obstacles.vertex(166,332);
+
+
+
+        pg_obstacles.endShape(CLOSE);
+     }
+     pg_obstacles.popMatrix();
+
+
+
+
+
+
+
       pg_obstacles.rectMode(CENTER);
       int count = 10;
       float dy = h / (float) count;
@@ -614,14 +752,7 @@ Spout spout;
         pg_obstacles.rect(w-w/4f, py, rad, rad, rad*0.3f);
       }
      
-      pg_obstacles.pushMatrix();
-      {
-        float px = w/2 + sin(slide) * (4 * w/5f) * 0.5f;
-        pg_obstacles.translate(px, h-250);
-        setFill(pg_obstacles, FG);
-        pg_obstacles.rect(0, 0, 30, 500);
-      }
-      pg_obstacles.popMatrix();
+     
       
       pg_obstacles.pushMatrix();
       {
@@ -655,7 +786,7 @@ Spout spout;
 //      mobs[i].draw(pg_obstacles, FG_MOBS);
 //    }
     
-    pg_obstacles.image(pg_spheres, 0, 0);
+    //pg_obstacles.image(pg_spheres, 0, 0);
     
     pg_obstacles.endDraw();
     
@@ -665,7 +796,7 @@ Spout spout;
   
  
   public void autoSpawnParticles(){
-    if(AUTO_SPAWN){
+    if(AUTO_SPAWN && frameCount % 2 == 0){
       float px = 2 * width/7f - 100;
       float py = height/4f;
       
@@ -676,13 +807,34 @@ Spout spout;
       //sr.vel(6, -4);
       //particles.spawn(width, height, sr);
       //////////////////////////////////////////////////////////////////////////////position of the spawn particles
-      sr.num(3);
-      sr.dim(30, 30);
+      sr.num(1);
+      sr.dim(10, 10);
+      sr.pos(191,(height-40));                         //2009
+      //sr.pos(212, height-147);                           //2011 2
+      sr.vel(0, -3);
+      particles.spawn(width, height, sr);
+      
+      sr.num(1);
+      sr.dim(10, 10);
       //sr.pos(width-px-670, height-py-30);            //xiang
-      sr.pos(410,650);                                 //2009
-      sr.vel(-6, -6);
+      sr.pos(198,height-57);                                 //2009
+      sr.vel(-4, -3);
+      particles.spawn(width, height, sr);
+      
+        sr.num(1);
+      sr.dim(10, 10);
+      //sr.pos(width-px-670, height-py-30);            //xiang
+      sr.pos(204,height-42);                                 //2009
+      sr.vel(-1, -3);
       particles.spawn(width, height, sr);
 
+
+      // sr.num(1);
+      //sr.dim(10, 10);
+      ////sr.pos(width-px-670, height-py-30);            //xiang
+      //sr.pos(155,height-267);                                 //2009
+      //sr.vel(0, -3);
+      //particles.spawn(width, height, sr);
     //sr.num(1);
     //  sr.dim(30, 30);
     //  sr.pos(width-px-170, height-1 - py- 55);
@@ -786,7 +938,10 @@ Spout spout;
       for(int i = 0; i < mobs.length; i++){
         mobs[i].startMove(mouseX, mouseY);
       }
+      
+      
     }
+    println("mouseX  " + mouseX + "   mouseY    " + mouseY);
   }
 
   public void mouseDragged(){
@@ -1057,7 +1212,7 @@ Spout spout;
       py += sy + dy_group;
       
       cp5.addSlider("gravity").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
-      .setRange(0f, 2f).setValue(gravity).plugTo(this, "set_gravity");
+      .setRange(0f, 12f).setValue(gravity).plugTo(this, "set_gravity");
       py += sy + dy_item;
       
       cp5.addSlider("damping").setGroup(group_particles).setSize(sx, sy).setPosition(px, py)
